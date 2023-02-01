@@ -229,10 +229,59 @@ $("#veribtn").click(function(){
   // 문자열 치환 replace
   verifi = verifi.replace(/[^0-9]/g, '');
   $("#phonenum input").val(verifi);
+
+  let veri1;
   // #phonenum input value length가 10~11자리가 아니라면(조건1)
   if(verifi.length < 10 || verifi.length > 11) {
-    verifi = false;
+    veri1 = false;
   } else {
-    verifi = true;
+    veri1 = true;
+  }
+
+  let veri2;
+  if(!isNaN(verifi)) {
+    veri2 = true;
+  } else {
+    veri2 = false;
+  }
+
+  
+  // 1. 전화번호를 형식에 맞게 입력하면 인증번호를 발급
+  // 2. 인증번호를 발급 받으면 인증번호 입력칸을 활성화
+  // 3. 전화번호를 형식에 맞지 않게 입력했을 경우 인증번호 입력칸 비활성화
+  
+  // veri1 && veri2 모두 true일 경우(조건1)
+  // 인증번호를 보내고 .warn "인증번호가 발송 되었습니다."(실행문1)
+  // 인증번호 입력칸을 활성화 (실행문2) css: disinput / attr : disabled
+  // $()부터 disinput이라는 클래스 remove
+  // $()부터 disabled라는 속성 remove
+  if(veri1 && veri2) {
+    $("#phone .warn").html('<span class="text-green">인증번호를 발송했습니다.(유효시간 30분)<br>인증번호가 오지 않으면 입력하신 정보가 정확한지 확인하여 주세요.<br>이미 가입된 번호이거나, 가상전화번호는 인증번호를 받을 수 없습니다.</span>');
+    $('.inputbox').removeClass('disinput');
+    $('#veritext').removeAttr('disabled');
+  } else {
+    // "#phone .warn" "형식에 맞지 않는 번호입니다." text-red (실행문1)
+    // 인증번호 입력칸 비활성화
+    $("#phone .warn").html('<span class="text-red">형식에 맞지 않는 번호입니다.</span>');
+    $('#veritext').Attr('disabled', 'disabled');
+    $('#veritext').parent('.inputbox').addClass('disinput');
+  }
+})
+
+
+// #veritext에서 focusout됐을 때
+// 그 값이 "1234"와 같다면(조건1)
+// "인증되었습니다." text-green (실행문1)
+$("#veritext").focusout(function(){
+  phoneveri = false;
+  if($(this).val() == "1234") {
+    phoneveri = true;
+    $("#phone .warn").html('<span class="text-green">인증되었습니다.</span>');
+    $(this).next('div').empty();
+  } else {
+    // 불일치, X 아이콘
+    $(this).next('div').html('<span class="text-red">불일치</span> <span class="disagree"></span>');
+    $("#phone .warn").html('<span class="text-red">인증번호를 다시 확인해주세요</span>');
+    $(this).parent('.inputbox').addClass('border-red');
   }
 })
